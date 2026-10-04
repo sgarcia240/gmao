@@ -1,4 +1,6 @@
-# 1. Instalar librerías del sistema operativo requeridas por PHP y Composer
+FROM php:8.2-apache
+
+# 1. Instalar dependencias del sistema y extensiones PHP para PostgreSQL
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -6,12 +8,28 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     && docker-php-ext-install pdo pdo_pgsql zip
 
-# 2. Instalar Composer ejecutable
+# 2. Habilitar mod_rewrite de Apache para Laravel
+RUN a2enmod rewrite
+
+# 3. Cambiar el DocumentRoot de Apache a la carpeta /public de Laravel
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/conf-available/*.conf
+
+# 4. Copiar ejecutable de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 3. Copiar archivos del proyecto
+# 5. Copiar código del proyecto
 WORKDIR /var/www/html
 COPY . .
 
-# 4. Ejecutar composer install
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# 6. Instalar dependencias de Laravel sin las dev
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+
+# 7. Dar permisos a las carpetas de almacenamiento
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 8. Dar permisos de ejecución al script de arranque
+RUN chmod +x docker/entrypoint.sh
+
+ENTRYPOINT ["docker/entrypoint.sh"]
