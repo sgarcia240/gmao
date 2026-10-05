@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Elevator;
+use App\Models\Location;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
@@ -22,7 +23,8 @@ class ElevatorIndex extends Component
     public $isEditing = false;
     public $elevatorId = null;
 
-    // Campos del formulario (alineados con los nombres de la BBDD)
+    // Campos del formulario
+    public $location_id = null; // 👈 Campo obligatorio en la BBDD
     public string $rae_code = '';
     public string $brand = '';
     public string $model = '';
@@ -44,7 +46,8 @@ class ElevatorIndex extends Component
     protected function rules()
     {
         return [
-            'rae_code' => [
+            'location_id'   => 'required|exists:locations,id',
+            'rae_code'      => [
                 'required',
                 Rule::unique('elevators', 'rae_code')->ignore($this->elevatorId),
             ],
@@ -76,6 +79,7 @@ class ElevatorIndex extends Component
 
         $elevator = Elevator::findOrFail($id);
         $this->elevatorId    = $elevator->id;
+        $this->location_id   = $elevator->location_id;
         $this->rae_code      = $elevator->rae_code;
         $this->brand         = $elevator->brand;
         $this->model         = $elevator->model;
@@ -83,7 +87,6 @@ class ElevatorIndex extends Component
         $this->max_load_kg   = $elevator->max_load_kg;
         $this->status        = $elevator->status;
         
-        // Asignación correcta de la fecha ITE
         $this->next_ite_date = $elevator->next_ite_date 
             ? Carbon::parse($elevator->next_ite_date)->format('Y-m-d') 
             : null;
@@ -101,6 +104,7 @@ class ElevatorIndex extends Component
     public function resetFields()
     {
         $this->elevatorId    = null;
+        $this->location_id   = null;
         $this->rae_code      = '';
         $this->brand         = '';
         $this->model         = '';
@@ -154,6 +158,7 @@ class ElevatorIndex extends Component
 
         return view('livewire.elevator-index', [
             'elevators' => $elevators,
+            'locations' => Location::all(), // 👈 Enviamos las ubicaciones a la vista
         ])->layout('layouts.app');
     }
 }

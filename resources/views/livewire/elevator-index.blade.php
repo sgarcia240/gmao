@@ -126,6 +126,16 @@
 
                 <!-- Formulario -->
                 <form wire:submit.prevent="save">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Ubicación / Edificio</label>
+                        <select wire:model="location_id" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            <option value="">-- Selecciona una ubicación --</option>
+                            @foreach($locations as $location)
+                                <option value="{{ $location->id }}">{{ $location->name ?? $location->address ?? 'Ubicación #'.$location->id }}</option>
+                            @endforeach
+                        </select>
+                        @error('location_id') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
+                    </div>
                     <div class="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Código RAE *</label>
