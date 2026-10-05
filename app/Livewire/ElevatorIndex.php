@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Elevator;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -43,7 +44,10 @@ class ElevatorIndex extends Component
     protected function rules()
     {
         return [
-            'rae_code'      => 'required|string|max:50|unique:elevators,rae_code,' . $this->elevatorId,
+            'rae_code' => [
+                'required',
+                Rule::unique('elevators', 'rae_code')->ignore($this->elevatorId),
+            ],
             'brand'         => 'required|string|max:100',
             'model'         => 'nullable|string|max:100',
             'stops_count'   => 'required|integer|min:1',
