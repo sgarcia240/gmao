@@ -13,9 +13,12 @@ use App\Livewire\UserIndex;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Auth;
 
+// Redirección inicial al login
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+// Cierre de sesión protegido
 Route::post('/logout', function () {
     Auth::logout();
 
@@ -25,11 +28,13 @@ Route::post('/logout', function () {
     return redirect('/login');
 })->middleware('auth')->name('logout');
 
+// GRUPO DE RUTAS PROTEGIDAS POR AUTENTICACIÓN
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Vista Dashboard principal
-    //Route::view('dashboard', 'dashboard')->name('dashboard');
-   Route::get('/analytics', AnalyticsDashboard::class)->name('analytics');
-   // Rutas para Administradores y Supervisores
+
+    // Dashboard & Analítica
+    Route::get('/analytics', AnalyticsDashboard::class)->name('analytics');
+
+    // Rutas para Administradores y Supervisores
     Route::middleware([CheckRole::class . ':admin,supervisor'])->group(function () {
         Route::get('/users', UserIndex::class)->name('users.index');
     });
@@ -39,28 +44,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/elevators', ElevatorIndex::class)->name('elevators.index');
         Route::get('/elevators/{elevator}', ElevatorShow::class)->name('elevators.show');
     });
-    // Generación de PDF para Parte de Trabajo y Facturas
-   Route::get('/work-orders/{id}/pdf/stream', [WorkOrderPdfController::class, 'stream'])->name('work-orders.pdf.stream');
-    Route::get('/work-orders/{id}/pdf/download', [WorkOrderPdfController::class, 'download'])->name('work-orders.pdf.download');
-    Route::get('/work-orders', App\Livewire\WorkOrderIndex::class)->name('work-orders.index');
 
-    // Vista principal de facturas
-    //Route::get('/invoices', InvoiceIndex::class)->name('invoices.index');
-    Route::get('/invoices/{work_order_id?}', InvoiceIndex::class)->name('invoices.index');
-
-    // Generar y ver PDF
-    Route::get('/invoices/{invoice}/pdf', [InvoicePdfController::class, 'stream'])->name('invoices.pdf.stream');
-
-    
-    // Vista para crear Orden de Trabajo
+    // Órdenes de Trabajo
+    Route::get('/work-orders', WorkOrderIndex::class)->name('work-orders.index');
     Route::get('/work-orders/create', CreateWorkOrder::class)->name('work-orders.create');
+    Route::get('/work-orders/{id}/pdf/stream', [WorkOrderPdfController::class, 'stream'])->name('work-orders.pdf.stream');
+    Route::get('/work-orders/{id}/pdf/download', [WorkOrderPdfController::class, 'download'])->name('work-orders.pdf.download');
+
+    // Facturación
+    Route::get('/invoices/{work_order_id?}', InvoiceIndex::class)->name('invoices.index');
+    Route::get('/invoices/{invoice}/pdf', [InvoicePdfController::class, 'stream'])->name('invoices.pdf.stream');
 });
 
-Route::get('/work-orders', WorkOrderIndex::class)->name('work-orders.index');
-
-Route::get('/elevators', ElevatorIndex::class)->name('elevators.index');
-Route::get('/elevators/{elevator}', ElevatorShow::class)->name('elevators.show');
-
+// Perfil de Usuario
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
