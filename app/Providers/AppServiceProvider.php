@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,9 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       Schema::defaultStringLength(191);
-      if (config('app.env') === 'production' || app()->environment('production')) {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
+        // Definir longitud por defecto para migraciones si aplica
+        Schema::defaultStringLength(191);
+
+        // Forzar HTTPS en entorno de producción
+        if (config('app.env') === 'production' || app()->environment('production')) {
+            URL::forceScheme('https');
         }
     }
 }
