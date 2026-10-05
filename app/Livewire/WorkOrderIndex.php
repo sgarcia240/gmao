@@ -95,9 +95,9 @@ class WorkOrderIndex extends Component
         $query = WorkOrder::with(['elevator.location', 'technician']);
 
         // Data Scoping: Si es técnico, filtrar solo sus órdenes
-        if ($user->hasRole(User::ROLE_TECHNICIAN)) {
+        if ($user?->hasRole(User::ROLE_TECHNICIAN)) {
             $query->where('technician_id', $user->id);
-        }
+}
 
         if ($this->search) {
             $query->where('issue_description', 'like', '%' . $this->search . '%');

@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <!-- Tabla de Órdenes con Botón PDF, Firma y Facturación -->
+    <!-- Tabla de Órdenes Adaptativa -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden border border-gray-100 dark:border-gray-700 relative">
         
         <!-- Spinner Global de Carga de Tabla -->
@@ -56,97 +56,100 @@
             </svg>
         </div>
 
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
-                    <th class="p-4">ID / Ubicación</th>
-                    <th class="p-4">Tipo</th>
-                    <th class="p-4">Prioridad</th>
-                    <th class="p-4">Descripción</th>
-                    <th class="p-4 text-center">Acciones & PDF</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                @forelse($workOrders as $order)
-                    <tr wire:key="order-{{ $order->id }}" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
-                        <td class="p-4 font-medium text-gray-900 dark:text-white">
-                            #{{ $order->id }} - {{ $order->elevator->location->building_name ?? 'N/A' }}
-                            <span class="block text-xs text-gray-400 font-mono">RAE: {{ $order->elevator->rae_code ?? 'N/A' }}</span>
-                        </td>
-                        <td class="p-4">
-                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                {{ ucfirst($order->type) }}
-                            </span>
-                        </td>
-                        <td class="p-4">
-                            @if($order->priority === 'person_trapped')
-                                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 animate-pulse">Atrapamiento</span>
-                            @elseif($order->priority === 'urgent')
-                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">Urgente</span>
-                            @else
-                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Normal</span>
-                            @endif
-                        </td>
-                        <td class="p-4 text-gray-600 dark:text-gray-300">
-                            {{ Str::limit($order->issue_description, 45) }}
-                        </td>
-                        <td class="p-4">
-                            <div class="flex items-center justify-center gap-2">
-                                <!-- Selector de Cambio Rápido -->
-                                <select wire:change="updateStatus({{ $order->id }}, $event.target.value)" class="text-xs rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="pending" @selected($order->status === 'pending')>Pendiente</option>
-                                    <option value="assigned" @selected($order->status === 'assigned')>Asignada</option>
-                                    <option value="in_progress" @selected($order->status === 'in_progress')>En Proceso</option>
-                                    <option value="completed" @selected($order->status === 'completed')>Completada</option>
-                                    <option value="invoiced" @selected($order->status === 'invoiced')>Facturada</option>
-                                </select>
+        <!-- Contenedor con Scroll Horizontal Responsivo -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+                        <th class="p-4 whitespace-nowrap">ID / Ubicación</th>
+                        <th class="p-4 whitespace-nowrap">Tipo</th>
+                        <th class="p-4 whitespace-nowrap">Prioridad</th>
+                        <th class="p-4 whitespace-nowrap">Descripción</th>
+                        <th class="p-4 text-center whitespace-nowrap">Acciones & PDF</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                    @forelse($workOrders as $order)
+                        <tr wire:key="order-{{ $order->id }}" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                            <td class="p-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                #{{ $order->id }} - {{ $order->elevator->location->building_name ?? 'N/A' }}
+                                <span class="block text-xs text-gray-400 font-mono">RAE: {{ $order->elevator->rae_code ?? 'N/A' }}</span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                    {{ ucfirst($order->type) }}
+                                </span>
+                            </td>
+                            <td class="p-4 whitespace-nowrap">
+                                @if($order->priority === 'person_trapped')
+                                    <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 animate-pulse">Atrapamiento</span>
+                                @elseif($order->priority === 'urgent')
+                                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">Urgente</span>
+                                @else
+                                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Normal</span>
+                                @endif
+                            </td>
+                            <td class="p-4 text-gray-600 dark:text-gray-300 min-w-[220px]">
+                                {{ Str::limit($order->issue_description, 45) }}
+                            </td>
+                            <td class="p-4 whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-2">
+                                    <!-- Selector de Cambio Rápido -->
+                                    <select wire:change="updateStatus({{ $order->id }}, $event.target.value)" class="text-xs rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option value="pending" @selected($order->status === 'pending')>Pendiente</option>
+                                        <option value="assigned" @selected($order->status === 'assigned')>Asignada</option>
+                                        <option value="in_progress" @selected($order->status === 'in_progress')>En Proceso</option>
+                                        <option value="completed" @selected($order->status === 'completed')>Completada</option>
+                                        <option value="invoiced" @selected($order->status === 'invoiced')>Facturada</option>
+                                    </select>
 
-                                <!-- Botón Capturar Firma Digital -->
-                                <button wire:click="$dispatch('openSignatureModal', { orderId: {{ $order->id }} })" 
-                                        title="{{ $order->client_signature ? 'Firma registrada (Haga clic para cambiar)' : 'Firmar Parte' }}" 
-                                        class="relative p-1.5 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg border border-emerald-200 dark:border-emerald-800 transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                    </svg>
-                                    @if($order->client_signature)
-                                        <span class="absolute -top-1 -right-1 flex h-3 w-3">
-                                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                                        </span>
-                                    @endif
-                                </button>
-
-                                <!-- Botón Descarga/Visualización Parte de Trabajo PDF -->
-                                <a href="{{ route('work-orders.pdf.stream', $order->id) }}" 
-                                   target="_blank" 
-                                   title="Descargar Parte de Trabajo (PDF)" 
-                                   class="p-1.5 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800 transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 01.293-.707l-5.414-5.414A1 1 0 0013.172 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m0 0l-2-2m2 2l2-2"/>
-                                    </svg>
-                                </a>
-
-                                <!-- Botón Generar Factura -->
-                                @if($order->status === 'completed')
-                                    <a href="{{ route('invoices.index', $order->id) }}" 
-                                       title="Crear Factura desde esta OT" 
-                                       class="p-1.5 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border border-indigo-200 dark:border-indigo-800 transition">
+                                    <!-- Botón Capturar Firma Digital -->
+                                    <button wire:click="$dispatch('openSignatureModal', { orderId: {{ $order->id }} })" 
+                                            title="{{ $order->client_signature ? 'Firma registrada (Haga clic para cambiar)' : 'Firmar Parte' }}" 
+                                            class="relative p-1.5 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg border border-emerald-200 dark:border-emerald-800 transition">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                        @if($order->client_signature)
+                                            <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                              <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                            </span>
+                                        @endif
+                                    </button>
+
+                                    <!-- Botón Descarga/Visualización Parte de Trabajo PDF -->
+                                    <a href="{{ route('work-orders.pdf.stream', $order->id) }}" 
+                                       target="_blank" 
+                                       title="Descargar Parte de Trabajo (PDF)" 
+                                       class="p-1.5 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800 transition">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 01.293-.707l-5.414-5.414A1 1 0 0013.172 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m0 0l-2-2m2 2l2-2"/>
                                         </svg>
                                     </a>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="p-6 text-center text-gray-500 dark:text-gray-400">No se encontraron órdenes de trabajo registradas.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+
+                                    <!-- Botón Generar Factura -->
+                                    @if($order->status === 'completed')
+                                        <a href="{{ route('invoices.index', $order->id) }}" 
+                                           title="Crear Factura desde esta OT" 
+                                           class="p-1.5 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border border-indigo-200 dark:border-indigo-800 transition">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                        </a>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="p-6 text-center text-gray-500 dark:text-gray-400">No se encontraron órdenes de trabajo registradas.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
         <div class="p-4 border-t border-gray-200 dark:border-gray-700">
             {{ $workOrders->links() }}
