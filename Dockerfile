@@ -32,5 +32,11 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # 8. Dar permisos de ejecución al script de arranque
 RUN chmod +x docker/entrypoint.sh
+# Configurar el DocumentRoot de Apache a la carpeta /public de Laravel
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/conf-available/*.conf \
+    && a2enmod rewrite
 
 ENTRYPOINT ["docker/entrypoint.sh"]

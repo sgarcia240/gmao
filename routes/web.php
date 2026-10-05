@@ -13,7 +13,9 @@ use App\Livewire\UserIndex;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Auth;
 
-//Route::view('/', 'welcome');
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 Route::post('/logout', function () {
     Auth::logout();
 
