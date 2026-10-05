@@ -114,7 +114,7 @@
     <!-- MODAL DE ALTA / EDICIÓN -->
     @if($showModal)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-            <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 my-8">
+            <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 my-8">
                 
                 <!-- Encabezado del Modal -->
                 <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-100">
@@ -126,48 +126,60 @@
 
                 <!-- Formulario -->
                 <form wire:submit.prevent="save">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Ubicación / Edificio</label>
-                        <select wire:model="location_id" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                            <option value="">-- Selecciona una ubicación --</option>
-                            @foreach($locations as $location)
-                                <option value="{{ $location->id }}">{{ $location->name ?? $location->address ?? 'Ubicación #'.$location->id }}</option>
-                            @endforeach
-                        </select>
-                        @error('location_id') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Código RAE *</label>
-                            <input type="text" wire:model="rae_code" placeholder="Ej: RAE-2026-003" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
-                            @error('rae_code') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                    <div class="p-5 sm:p-6 space-y-4">
+                        <!-- Fila 1: Ubicación y Código RAE -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                                    Ubicación / Edificio *
+                                </label>
+                                <select wire:model="location_id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                    <option value="">-- Selecciona --</option>
+                                    @foreach($locations as $location)
+                                        <option value="{{ $location->id }}">{{ $location->name ?? $location->address ?? 'Ubicación #'.$location->id }}</option>
+                                    @endforeach
+                                </select>
+                                @error('location_id') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                                    Código RAE *
+                                </label>
+                                <input type="text" wire:model="rae_code" placeholder="Ej: RAE-2026-003" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                @error('rae_code') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
+                            </div>
                         </div>
 
+                        <!-- Fila 2: Marca y Modelo -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Marca *</label>
                                 <input type="text" wire:model="brand" placeholder="Ej: Otis" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
-                                @error('brand') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                                @error('brand') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Modelo</label>
                                 <input type="text" wire:model="model" placeholder="Ej: Gen2 Switch" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                                @error('model') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
+                        <!-- Fila 3: Paradas y Carga -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Paradas *</label>
                                 <input type="number" wire:model="stops_count" min="1" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
-                                @error('stops_count') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                                @error('stops_count') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Carga (kg) *</label>
                                 <input type="number" wire:model="max_load_kg" step="10" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
-                                @error('max_load_kg') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                                @error('max_load_kg') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
+                        <!-- Fila 4: Estado y Fecha ITE -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Estado Operativo</label>
@@ -177,10 +189,12 @@
                                     <option value="stopped">Parado</option>
                                     <option value="out_of_service">Fuera de Servicio</option>
                                 </select>
+                                @error('status') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Próxima ITE</label>
                                 <input type="date" wire:model="next_ite_date" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                                @error('next_ite_date') <span class="text-xs text-rose-500 block mt-1">{{ $message }}</span> @enderror
                             </div>
                         </div>
                     </div>
