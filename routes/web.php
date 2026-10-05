@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Generación de PDF para Parte de Trabajo y Facturas
    Route::get('/work-orders/{id}/pdf/stream', [WorkOrderPdfController::class, 'stream'])->name('work-orders.pdf.stream');
     Route::get('/work-orders/{id}/pdf/download', [WorkOrderPdfController::class, 'download'])->name('work-orders.pdf.download');
+    Route::get('/work-orders', App\Livewire\WorkOrderIndex::class)->name('work-orders.index');
 
     // Vista principal de facturas
     //Route::get('/invoices', InvoiceIndex::class)->name('invoices.index');
