@@ -1,20 +1,19 @@
 FROM php:8.3-apache
 
-# 1. Instalar dependencias del sistema, Node.js 20 y extensiones PHP para PostgreSQL
+# 1. Instalar dependencias del sistema, Node.js 20, extensiones PHP para PostgreSQL y GD
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
     libpq-dev \
     libzip-dev \
+    curl \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd
-    curl \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && docker-php-ext-install pdo pdo_pgsql pgsql zip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo pdo_pgsql pgsql zip gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 2. Habilitar mod_rewrite de Apache y reconfigurar el DocumentRoot a /public
