@@ -7,7 +7,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">Gestión de incidencias, mantenimientos y partes técnicos</p>
         </div>
         <button wire:click="openCreateModal" 
-                class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow transition duration-150">
+                class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -17,18 +17,24 @@
 
     <!-- Alertas Flash -->
     @if (session()->has('message'))
-        <div class="mb-4 p-4 text-sm text-green-800 bg-green-100 rounded-lg dark:bg-gray-800 dark:text-green-400 border border-green-200 dark:border-green-800">
-            {{ session('message') }}
+        <div class="mb-4 p-4 text-sm text-green-800 bg-green-100 rounded-lg dark:bg-gray-800 dark:text-green-400 border border-green-200 dark:border-green-800 flex items-center justify-between">
+            <span>{{ session('message') }}</span>
         </div>
     @endif
 
     <!-- Buscador y Filtros -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-100 dark:border-gray-700">
         <div>
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Buscar por descripción..." class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500">
+            <input type="text" 
+                   wire:model.live.debounce.300ms="search" 
+                   aria-label="Buscar por descripción"
+                   placeholder="Buscar por descripción..." 
+                   class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500">
         </div>
         <div>
-            <select wire:model.live="statusFilter" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500">
+            <select wire:model.live="statusFilter" 
+                    aria-label="Filtrar por estado"
+                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500">
                 <option value="">-- Todos los estados --</option>
                 <option value="pending">Pendiente</option>
                 <option value="assigned">Asignada</option>
@@ -40,7 +46,16 @@
     </div>
 
     <!-- Tabla de Órdenes con Botón PDF, Firma y Facturación -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden border border-gray-100 dark:border-gray-700">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden border border-gray-100 dark:border-gray-700 relative">
+        
+        <!-- Spinner Global de Carga de Tabla -->
+        <div wire:loading.flex wire:target="search, statusFilter" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 z-10 items-center justify-center">
+            <svg class="animate-spin h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+        </div>
+
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
@@ -53,7 +68,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                 @forelse($workOrders as $order)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                    <tr wire:key="order-{{ $order->id }}" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
                         <td class="p-4 font-medium text-gray-900 dark:text-white">
                             #{{ $order->id }} - {{ $order->elevator->location->building_name ?? 'N/A' }}
                             <span class="block text-xs text-gray-400 font-mono">RAE: {{ $order->elevator->rae_code ?? 'N/A' }}</span>
@@ -112,7 +127,7 @@
                                     </svg>
                                 </a>
 
-                                <!-- Botón Generar Factura (Inicia la facturación con los datos de esta OT) -->
+                                <!-- Botón Generar Factura -->
                                 @if($order->status === 'completed')
                                     <a href="{{ route('invoices.index', $order->id) }}" 
                                        title="Crear Factura desde esta OT" 
@@ -127,7 +142,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="p-6 text-center text-gray-500 dark:text-gray-400">No se encontraron órdenes de trabajo registrados.</td>
+                        <td colspan="5" class="p-6 text-center text-gray-500 dark:text-gray-400">No se encontraron órdenes de trabajo registradas.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -145,7 +160,7 @@
                 
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Nueva Orden de Trabajo</h3>
-                    <button wire:click="closeModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <button wire:click="closeModal" type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
@@ -163,7 +178,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('elevator_id') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                @error('elevator_id') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
@@ -174,7 +189,7 @@
                                         <option value="{{ $tech->id }}">{{ $tech->name }}</option>
                                     @endforeach
                                 </select>
-                                @error('technician_id') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                @error('technician_id') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
@@ -185,7 +200,7 @@
                                     <option value="inspection">Inspección ITE</option>
                                     <option value="assembly">Montaje / Reforma</option>
                                 </select>
-                                @error('type') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                @error('type') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
@@ -195,13 +210,13 @@
                                     <option value="urgent">Urgente</option>
                                     <option value="person_trapped">Atrapamiento de Persona</option>
                                 </select>
-                                @error('priority') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                @error('priority') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Categoría del Fallo</label>
                                 <input type="text" wire:model="failure_category" placeholder="Ej: Puertas, Cuadro, Motor..." class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
-                                @error('failure_category') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                @error('failure_category') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
@@ -212,14 +227,14 @@
                                     <option value="in_progress">En Proceso</option>
                                     <option value="completed">Completada</option>
                                 </select>
-                                @error('status') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                @error('status') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Descripción del Problema *</label>
                             <textarea wire:model="issue_description" rows="3" placeholder="Detalla la incidencia..." class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
-                            @error('issue_description') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            @error('issue_description') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
@@ -227,8 +242,17 @@
                         <button type="button" wire:click="closeModal" class="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg">
                             Cancelar
                         </button>
-                        <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow">
-                            Guardar Orden
+                        <button type="submit" 
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg shadow">
+                            <span wire:loading.remove wire:target="save">Guardar Orden</span>
+                            <span wire:loading wire:target="save" class="flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                Guardando...
+                            </span>
                         </button>
                     </div>
                 </form>
