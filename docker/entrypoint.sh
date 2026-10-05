@@ -1,16 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 
-# Adaptar el puerto dinámico asignado por Render ($PORT)
-PORT="${PORT:-80}"
-sed -i "s/80/${PORT}/g" /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf
+# 1. Eliminar físicamente archivos de caché persistentes
+rm -f /var/www/html/bootstrap/cache/*.php
 
-# Limpiar cachés antiguas de configuración
+# 2. Limpiar cachés internas de Laravel
 php artisan config:clear
+php artisan cache:clear
 php artisan route:clear
 php artisan view:clear
 
-# Ejecutar migraciones automáticamente en PostgreSQL
-php artisan migrate --force
+# 3. Asignar permisos al usuario de Apache (www-data) en tiempo de ejecución
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Iniciar servidor Apache
+# 4. Iniciar Apache
 exec apache2-foreground
