@@ -42,5 +42,14 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql
+    # Instalar Node.js para compilar assets de Vite
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# Copiar archivos del proyecto e instalar dependencias de NPM
+COPY . /var/www/html
+WORKDIR /var/www/html
+RUN npm ci || npm install
+RUN npm run build
 
 ENTRYPOINT ["docker/entrypoint.sh"]
