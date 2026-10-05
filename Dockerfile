@@ -27,7 +27,8 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # 7. Dar permisos a las carpetas de almacenamiento
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 8. Dar permisos de ejecución al script de arranque
 RUN chmod +x docker/entrypoint.sh
