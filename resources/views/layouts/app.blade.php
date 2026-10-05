@@ -160,11 +160,13 @@
                              x-transition:leave-end="transform opacity-0 scale-95"
                              class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
                             
-                            <!-- Cabecera del menú -->
-                            <div class="px-4 py-2 border-b border-gray-100">
-                                <p class="text-xs text-gray-400 font-medium">Sesión iniciada como</p>
-                                <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->email ?? 'usuario@empresa.com' }}</p>
-                            </div>
+                           <!-- Cabecera del menú -->
+                            @auth
+                                <div class="px-4 py-2 border-b border-gray-100">
+                                    <p class="text-xs text-gray-400 font-medium">Sesión iniciada como</p>
+                                    <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->email }}</p>
+                                </div>
+                            @endauth
 
                             <!-- Opción de Cierre de Sesión -->
                             <form method="POST" action="{{ route('logout') }}">
