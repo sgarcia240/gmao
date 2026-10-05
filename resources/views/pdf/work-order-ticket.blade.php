@@ -73,13 +73,19 @@
         }
         .signature-box {
             border-top: 1px solid #9ca3af;
-            margin-top: 50px;
+            margin-top: 5px;
             padding-top: 5px;
             font-weight: bold;
         }
+        .signature-container {
+            height: 80px;
+            text-align: center;
+            vertical-align: bottom;
+        }
         .signature-img {
-            max-height: 70px;
-            margin-bottom: 5px;
+            max-height: 75px;
+            max-width: 200px;
+            display: inline-block;
         }
         .badge {
             display: inline-block;
@@ -151,13 +157,15 @@
     <table class="signatures-table">
         <tr>
             <td>
-                <div style="height: 70px;"></div>
+                <div class="signature-container"></div>
                 <div class="signature-box">Firma del Técnico</div>
             </td>
             <td>
-                <div style="height: 70px;">
-                    @if($workOrder->client_signature)
-                        <img src="{{ $workOrder->client_signature }}" class="signature-img" alt="Firma Cliente">
+                <div class="signature-container">
+                    @if($workOrder->client_signature && file_exists(storage_path('app/public/' . $workOrder->client_signature)))
+                        <img src="{{ storage_path('app/public/' . $workOrder->client_signature) }}" class="signature-img" alt="Firma Cliente">
+                    @elseif($workOrder->client_signature && file_exists(public_path('storage/' . $workOrder->client_signature)))
+                        <img src="{{ public_path('storage/' . $workOrder->client_signature) }}" class="signature-img" alt="Firma Cliente">
                     @endif
                 </div>
                 <div class="signature-box">Firma / Conformidad del Cliente</div>
