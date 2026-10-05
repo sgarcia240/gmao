@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 # 1. Instalar dependencias del sistema y extensiones PHP para PostgreSQL
 RUN apt-get update && apt-get install -y \
