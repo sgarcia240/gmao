@@ -51,6 +51,12 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 # Convertir saltos de línea CRLF (Windows) a LF (Linux) y dar permisos de ejecución
 RUN sed -i -e 's/\r$//' /usr/local/bin/entrypoint.sh \
     && chmod +x /usr/local/bin/entrypoint.sh
+    # Copiar el script desde la carpeta docker/ a los ejecutables del sistema
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Sanitizar finales de línea (LF) y dar permisos de ejecución
+RUN sed -i -e 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/entrypoint.sh
 
 # Establecer el punto de entrada del contenedor
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
