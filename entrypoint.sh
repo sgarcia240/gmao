@@ -1,10 +1,11 @@
 #!/bin/sh
 set -e
 
-# Limpiar caché de configuración en cada inicio
-php artisan config:clear || true
+# Limpiar cache de configuracion y rutas al arrancar el contenedor
+php artisan config:clear
+php artisan cache:clear
 
-# Arrancar Apache en primer plano
+# Arrancar el servidor Apache
 exec apache2-foreground
 
 
