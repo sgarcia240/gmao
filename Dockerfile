@@ -45,6 +45,15 @@ RUN apt-get update && apt-get install -y \
     # Instalar Node.js para compilar assets de Vite
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
+    # Copiar el script entrypoint a la carpeta de ejecutables del sistema
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Convertir saltos de línea CRLF (Windows) a LF (Linux) y dar permisos de ejecución
+RUN sed -i -e 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/entrypoint.sh
+
+# Establecer el punto de entrada del contenedor
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Copiar archivos del proyecto e instalar dependencias de NPM
 COPY . /var/www/html
