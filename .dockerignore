@@ -3,3 +3,6 @@
 .env
 .git
 .github
+.env
+bootstrap/cache/*.php
+storage/logs/*.log

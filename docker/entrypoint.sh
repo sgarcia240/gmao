@@ -15,3 +15,5 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 4. Iniciar Apache
 exec apache2-foreground
+
+
