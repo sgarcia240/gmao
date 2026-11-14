@@ -12,6 +12,7 @@ use App\Livewire\ElevatorShow;
 use App\Livewire\UserIndex;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Auth;
+use App\Livewire\ReformDashboard;
 
 // Redirección inicial al login
 Route::get('/', function () {
@@ -33,6 +34,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard & Analítica
     Route::get('/analytics', AnalyticsDashboard::class)->name('analytics');
+
+    // Pantalla principal directa al gestor personal de reformas
+    Route::get('/', ReformDashboard::class)->name('dashboard');
+
+    // Mantener tus rutas actuales de PDF de Orden de Trabajo
+    Route::get('/work-orders/{workOrder}/pdf/stream', [WorkOrderPdfController::class, 'stream'])->name('work-orders.pdf.stream');
+    Route::get('/work-orders/{workOrder}/pdf/download', [WorkOrderPdfController::class, 'download'])->name('work-orders.pdf.download');
 
     // Rutas para Administradores y Supervisores
     Route::middleware([CheckRole::class . ':admin,supervisor'])->group(function () {

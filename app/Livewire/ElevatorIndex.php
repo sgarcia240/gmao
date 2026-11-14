@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
 
 class ElevatorIndex extends Component
 {
@@ -32,6 +33,11 @@ class ElevatorIndex extends Component
     public ?int $max_load_kg = 450;
     public string $status = 'active';
     public ?string $next_ite_date = null;
+    // Control del modal de confirmación de borrado
+    public bool $showDeleteModal = false;
+    public ?int $elevatorToDeleteId = null;
+    public string $elevatorToDeleteRae = '';
+    public int $relatedOrdersCount = 0;
 
     public function updatingSearch()
     {
@@ -160,5 +166,57 @@ class ElevatorIndex extends Component
             'elevators' => $elevators,
             'locations' => Location::all(), // 👈 Enviamos las ubicaciones a la vista
         ])->layout('layouts.app');
+    }
+    public function confirmDelete(int $id)
+    {
+        $elevator = Elevator::withCount('workOrders')->findOrFail($id);
+
+        $this->elevatorToDeleteId = $elevator->id;
+        $this->elevatorToDeleteRae = $elevator->rae_code ?? 'S/N';
+        $this->relatedOrdersCount = $elevator->work_orders_count;
+        $this->showDeleteModal = true;
+    }
+
+    public function cancelDelete()
+    {
+        $this->reset(['showDeleteModal', 'elevatorToDeleteId', 'elevatorToDeleteRae', 'relatedOrdersCount']);
+    }
+
+    public function deleteElevator()
+    {
+        if (!$this->elevatorToDeleteId) {
+            return;
+        }
+
+        $rae = $this->elevatorToDeleteRae;
+
+        DB::transaction(function () {
+            $elevator = Elevator::with('workOrders')->findOrFail($this->elevatorToDeleteId);
+
+            // 1. Eliminar cada OT vinculada y todos sus registros hijos
+            foreach ($elevator->workOrders as $order) {
+                if (method_exists($order, 'reformItems')) {
+                    $order->reformItems()->delete();
+                }
+                if (method_exists($order, 'photos')) {
+                    $order->photos()->delete();
+                }
+                if (method_exists($order, 'quotes')) {
+                    $order->quotes()->delete();
+                }
+                $order->delete();
+            }
+
+            // 2. Eliminar la toma de datos técnica (survey) si existe
+            if (method_exists($elevator, 'survey') && $elevator->survey) {
+                $elevator->survey()->delete();
+            }
+
+            // 3. Eliminar el ascensor
+            $elevator->delete();
+        });
+
+        $this->cancelDelete();
+        session()->flash('message', "Ascensor {$rae} y toda su documentación vinculada eliminados correctamente.");
     }
 }

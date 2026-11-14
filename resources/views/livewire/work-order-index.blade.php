@@ -6,13 +6,10 @@
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Órdenes de Trabajo</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">Gestión de incidencias, mantenimientos y partes técnicos</p>
         </div>
-        <button wire:click="openCreateModal" 
-                class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow transition duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nueva Orden
-        </button>
+        <a href="{{ route('dashboard') }}" 
+        class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow transition duration-150">
+            + Nueva Toma de Datos
+        </a>
     </div>
 
     <!-- Alertas Flash -->
@@ -102,6 +99,13 @@
                                         <option value="completed" @selected($order->status === 'completed')>Completada</option>
                                         <option value="invoiced" @selected($order->status === 'invoiced')>Facturada</option>
                                     </select>
+                                    <button wire:click="openEditModal({{ $order->id }})" 
+                                            title="Editar Orden de Trabajo"
+                                            class="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
 
                                     <!-- Botón Capturar Firma Digital -->
                                     <button wire:click="$dispatch('openSignatureModal', { orderId: {{ $order->id }} })" 
@@ -128,6 +132,14 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m0 0l-2-2m2 2l2-2"/>
                                         </svg>
                                     </a>
+                                    <button wire:click="deleteOrder({{ $order->id }})"
+                                            wire:confirm="¿Seguro que quieres eliminar la orden #{{ $order->id }} y todos sus datos asociados? Esta acción no se puede deshacer."
+                                            title="Eliminar Orden de Trabajo"
+                                            class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
 
                                     <!-- Botón Generar Factura -->
                                     @if($order->status === 'completed')
@@ -266,4 +278,5 @@
 
     <!-- COMPONENTE MODAL DE FIRMA DIGITAL -->
     @livewire('work-order-signature')
+    
 </div>

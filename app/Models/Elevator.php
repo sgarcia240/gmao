@@ -30,5 +30,9 @@ class Elevator extends Model
     {
         return $this->hasMany(WorkOrder::class);
     }
+    public function survey()
+{
+    return $this->hasOne(ElevatorSurvey::class);
+}
     
 }

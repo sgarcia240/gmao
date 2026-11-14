@@ -41,35 +41,74 @@ class WorkOrderIndex extends Component
         ];
     }
 
+    public ?int $editingOrderId = null; // Añade esta propiedad arriba junto a tus otras propiedades públicas
+
     public function openCreateModal()
     {
-        $this->resetErrorBag();
-        $this->reset(['elevator_id', 'technician_id', 'type', 'priority', 'status', 'issue_description', 'failure_category']);
-        $this->type = 'corrective';
-        $this->priority = 'normal';
-        $this->status = 'pending';
-        
-        // Si el usuario que crea la orden es un técnico, se asigna automáticamente a sí mismo
-        if (auth()->user()->hasRole(User::ROLE_TECHNICIAN)) {
-            $this->technician_id = auth()->id();
-        }
+        return redirect()->route('dashboard');
+    }
+
+    public function openEditModal(int $id)
+    {
+        $order = WorkOrder::findOrFail($id);
+
+        $this->editingOrderId    = $order->id;
+        $this->elevator_id       = $order->elevator_id;
+        $this->technician_id     = $order->technician_id ?? '';
+        $this->type              = $order->type ?: 'assembly';
+        $this->priority          = $order->priority ?: 'normal';
+        $this->status            = $order->status ?: 'pending';
+        $this->issue_description = $order->issue_description;
+        $this->failure_category  = $order->failure_category ?? '';
 
         $this->showModal = true;
     }
 
     public function closeModal()
     {
+        $this->reset(['editingOrderId']);
         $this->showModal = false;
     }
 
     public function save()
     {
+        if (!$this->editingOrderId) {
+            abort(403, 'Las órdenes nuevas deben crearse desde la Toma de Datos.');
+        }
+
+        // Si technician_id viene vacío '', lo convertimos a null para que pase 'nullable|exists:users,id'
+        if ($this->technician_id === '') {
+            $this->technician_id = null;
+        }
+
         $validatedData = $this->validate();
 
-        WorkOrder::create($validatedData);
+        $order = WorkOrder::findOrFail($this->editingOrderId);
+        $order->update($validatedData);
 
+        $this->reset(['editingOrderId']);
         $this->showModal = false;
-        session()->flash('message', '¡Orden de trabajo creada correctamente!');
+        session()->flash('message', '¡Orden de trabajo #' . $order->id . ' actualizada correctamente!');
+    }
+    public function deleteOrder(int $id)
+    {
+        $order = WorkOrder::findOrFail($id);
+
+        // Si en el futuro las relaciones no tienen onDelete('cascade') en MySQL,
+        // limpiamos antes los registros hijos para evitar errores de clave foránea:
+        if (method_exists($order, 'reformItems')) {
+            $order->reformItems()->delete();
+        }
+        if (method_exists($order, 'photos')) {
+            $order->photos()->delete();
+        }
+        if (method_exists($order, 'quotes')) {
+            $order->quotes()->delete();
+        }
+
+        $order->delete();
+
+        session()->flash('message', 'Orden de trabajo #' . $id . ' eliminada correctamente.');
     }
 
     // Cambio rápido de estado directo desde la tabla
@@ -114,4 +153,6 @@ class WorkOrderIndex extends Component
             'technicians' => User::where('role', User::ROLE_TECHNICIAN)->where('is_active', true)->get(),
         ])->layout('layouts.app');
     }
+
+
 }

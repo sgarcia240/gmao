@@ -14,6 +14,8 @@ class Location extends Model
         'building_name',
         'address',
         'city',
+       
+        
     ];
 
     public function client()

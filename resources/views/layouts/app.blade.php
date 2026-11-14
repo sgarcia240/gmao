@@ -6,14 +6,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     
-    <title>{{ config('app.name', 'GMAO Elevadores') }}</title>
+    <title>{{ config('app.name', 'GMAO Reformas') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
-    <!-- Scripts y Tailwind -->
+    <!-- Scripts, Tailwind y Livewire -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="h-full font-sans antialiased text-slate-800 bg-slate-100" x-data="{ sidebarOpen: false }">
 
@@ -41,7 +42,7 @@
                         <div class="p-2 bg-blue-600 rounded-lg text-white font-black text-xl leading-none">
                             E
                         </div>
-                        <span class="font-bold text-white tracking-wide text-lg">GMAO Elevate</span>
+                        <span class="font-bold text-white tracking-wide text-lg">GMAO Reformas</span>
                     </div>
                     <!-- Botón para cerrar en móvil -->
                     <button @click="sidebarOpen = false" class="md:hidden text-slate-400 hover:text-white p-1 rounded-lg focus:outline-none">
@@ -51,45 +52,45 @@
                     </button>
                 </div>
 
-                <!-- Navigation Links -->
+                <!-- Navigation Links (Adaptado a uso personal de Reformas) -->
                 <nav class="p-4 space-y-1">
                     <div class="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Menú Principal
+                        Gestión Personal
                     </div>
 
-                    <!-- Dashboard / Analíticas -->
-                    <a href="{{ route('analytics') }}" 
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('analytics') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                        Dashboard
+                    <!-- Tablero Principal: Reformas, Toma de Datos y Acopio -->
+                    <a href="{{ route('dashboard') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                        Mis Obras y Reformas
                     </a>
 
-                    <!-- Órdenes de Trabajo -->
+                    <!-- Histórico Órdenes de Trabajo -->
+                    @if(Route::has('work-orders.index'))
                     <a href="{{ route('work-orders.index') }}"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('work-orders.index') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                        Órdenes de Trabajo
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('work-orders.*') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Listado de OTs
                     </a>
-
-                    <!-- Facturas (Solo Admin y Supervisor) -->
-                    @if(auth()->check() && auth()->user()->hasRole('admin', 'supervisor'))
-                    <a href="{{ route('invoices.index') }}" 
-                         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('invoices.index') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                            <svg class="w-5 h-5 text-gray-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <span>Facturas</span>
-                        </a>
                     @endif
 
-                    <!-- Parque de Ascensores -->
+                    <!-- Parque de Ascensores / Comunidades -->
+                    @if(Route::has('elevators.index'))
                     <a href="{{ route('elevators.index') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('elevators.index') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('elevators.*') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                        Ascensores
+                        Comunidades / Ascensores
                     </a>
-
-                    <!-- Sección Configuración (Solo Admin y Supervisor) -->
+                    @endif
+                    <!-- Analíticas (si deseas conservar la vista anterior) -->
+                    @if(Route::has('analytics'))
+                    <a href="{{ route('analytics') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('analytics') ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                        Estadísticas
+                    </a>
+                    @endif
+                   <!-- Sección Configuración (Solo Admin y Supervisor) -->
                     @if(auth()->check() && auth()->user()->hasRole('admin', 'supervisor'))
                     <div class="px-3 pt-4 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Configuración
@@ -102,7 +103,16 @@
                         Técnicos & Usuarios
                     </a>
                     @endif
+                    
                 </nav>
+            </div>
+
+            <!-- Pie del Sidebar con Estado de Copia de Seguridad -->
+            <div class="p-4 border-t border-slate-800/60">
+                <div class="px-3 py-2 bg-slate-800/50 rounded-lg text-xs text-slate-400">
+                    <span class="block font-semibold text-slate-300">Backup Automático</span>
+                    <span>Neon DB + Fotos (03:00h)</span>
+                </div>
             </div>
         </aside>
 
@@ -136,7 +146,7 @@
                                 {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                             </div>
 
-                            <!-- Nombre del usuario (Oculto en pantallas ultra pequeñas) -->
+                            <!-- Nombre del usuario -->
                             <span class="font-semibold text-gray-800 hidden sm:inline">{{ Auth::user()->name ?? 'Usuario' }}</span>
 
                             <!-- Flecha desplegable -->
@@ -158,15 +168,24 @@
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
+                             class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
                             
-                           <!-- Cabecera del menú -->
                             @auth
                                 <div class="px-4 py-2 border-b border-gray-100">
                                     <p class="text-xs text-gray-400 font-medium">Sesión iniciada como</p>
                                     <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->email }}</p>
                                 </div>
                             @endauth
+
+                            <!-- Descarga manual de respaldo ZIP si la necesitas en cualquier momento -->
+                            @if(Route::has('backup.download'))
+                                <a href="{{ route('backup.download') }}" class="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium transition flex items-center gap-2.5 border-b border-gray-100">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Descargar Backup ZIP
+                                </a>
+                            @endif
 
                             <!-- Opción de Cierre de Sesión -->
                             <form method="POST" action="{{ route('logout') }}">
@@ -191,5 +210,6 @@
         </div>
     </div>
 
+    @livewireScripts
 </body>
 </html>
