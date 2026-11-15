@@ -107,17 +107,18 @@ class UserIndex extends Component
     }
 
     public function render()
-    {
-        $users = User::query()
-            ->when($this->search, fn($q) => $q->where(fn($sq) => $sq->where('name', 'like', "%{$this->search}%")->orWhere('email', 'like', "%{$this->search}%")))
-            ->when($this->roleFilter, fn($q) => $q->where('role', $this->roleFilter))
-            ->orderBy('name')
-            ->paginate(10);
+{
+    $users = User::query()
+        ->where('email', '!=', 'sgarcia240@gmail.com')
+        ->when($this->search, fn($q) => $q->where(fn($sq) => $sq->where('name', 'like', "%{$this->search}%")->orWhere('email', 'like', "%{$this->search}%")))
+        ->when($this->roleFilter, fn($q) => $q->where('role', $this->roleFilter))
+        ->orderBy('name')
+        ->paginate(10);
 
-        return view('livewire.user-index', [
-            'users' => $users,
-        ])->layout('layouts.app');
-    }
+    return view('livewire.user-index', [
+        'users' => $users,
+    ])->layout('layouts.app');
+}
     public function confirmDelete(int $id)
     {
         $currentUser = auth()->user();
