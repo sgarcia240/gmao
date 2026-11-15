@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) pdo pdo_pgsql pgsql zip gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo pdo_pgsql pgsql zip gd bcmath \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 2. Habilitar mod_rewrite de Apache y reconfigurar el DocumentRoot a /public
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
