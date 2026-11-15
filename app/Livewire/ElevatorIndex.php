@@ -189,33 +189,37 @@ class ElevatorIndex extends Component
         }
 
         $rae = $this->elevatorToDeleteRae;
+        $elevator = \App\Models\Elevator::findOrFail($this->elevatorToDeleteId);
 
-        DB::transaction(function () {
-            $elevator = Elevator::with('workOrders')->findOrFail($this->elevatorToDeleteId);
+        // 1. Obtener y eliminar cada OT vinculada y sus registros hijos si sus tablas existen
+        $orders = \App\Models\WorkOrder::where('elevator_id', $elevator->id)->get();
 
-            // 1. Eliminar cada OT vinculada y todos sus registros hijos
-            foreach ($elevator->workOrders as $order) {
-                if (method_exists($order, 'reformItems')) {
-                    $order->reformItems()->delete();
-                }
-                if (method_exists($order, 'photos')) {
-                    $order->photos()->delete();
-                }
-                if (method_exists($order, 'quotes')) {
-                    $order->quotes()->delete();
-                }
-                $order->delete();
+        foreach ($orders as $order) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('reform_items') && method_exists($order, 'reformItems')) {
+                $order->reformItems()->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('work_order_photos') && method_exists($order, 'photos')) {
+                $order->photos()->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('quotes') && method_exists($order, 'quotes')) {
+                $order->quotes()->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('invoices') && method_exists($order, 'invoices')) {
+                $order->invoices()->delete();
             }
 
-            // 2. Eliminar la toma de datos técnica (survey) si existe
-            if (method_exists($elevator, 'survey') && $elevator->survey) {
-                $elevator->survey()->delete();
-            }
+            $order->delete();
+        }
 
-            // 3. Eliminar el ascensor
-            $elevator->delete();
-        });
+        // 2. Eliminar la ficha técnica (survey) si existe
+        if (\Illuminate\Support\Facades\Schema::hasTable('elevator_surveys')) {
+            \Illuminate\Support\Facades\DB::table('elevator_surveys')
+                ->where('elevator_id', $elevator->id)
+                ->delete();
+        }
 
+        // 3. Eliminar el ascensor
+        $elevator->delete();
         $this->cancelDelete();
         session()->flash('message', "Ascensor {$rae} y toda su documentación vinculada eliminados correctamente.");
     }
