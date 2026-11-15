@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
@@ -10,7 +11,7 @@ class User extends Authenticatable
     public const ROLE_ADMIN = 'admin';
     public const ROLE_SUPERVISOR = 'supervisor';
     public const ROLE_TECHNICIAN = 'technician';
-
+    use HasFactory, Notifiable;
     /**
      * Retorna el listado de roles con su etiqueta legible.
      */
