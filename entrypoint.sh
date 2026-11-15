@@ -8,6 +8,8 @@ php artisan view:clear
 
 # Ejecutar migraciones pendientes en Neon
 php artisan migrate --force
+# Crear enlace simbolico de storage para servir fotos desde /storage
+php artisan storage:link --force
 
 # Arrancar el servidor Apache
 exec apache2-foreground
