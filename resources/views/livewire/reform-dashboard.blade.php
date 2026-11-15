@@ -244,7 +244,20 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 mb-1">Adjuntar PDF o foto del presupuesto (Opcional)</label>
-                                <input type="file" wire:model="quoteFile" class="w-full text-sm text-slate-600 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white" required>
+                               <div>
+                                    <input type="file"
+                                        wire:model="quoteFile"
+                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                                        class="w-full text-sm text-slate-600 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white">
+
+                                    <div wire:loading wire:target="quoteFile" class="mt-1.5 text-xs font-semibold text-blue-600">
+                                        Subiendo documento, espera un segundo antes de guardar...
+                                    </div>
+
+                                    @error('quoteFile')
+                                        <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                             <button type="submit" class="w-full py-3 bg-indigo-600 active:bg-indigo-800 text-white text-sm font-bold rounded-xl">
                                 + Guardar Oferta
