@@ -5,10 +5,20 @@
             <h1 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">Gestión de Usuarios y Técnicos</h1>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Administra el personal técnico, supervisores y administradores del GMAO.</p>
         </div>
-        <button wire:click="openModal()" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-xl shadow-sm transition flex items-center justify-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Nuevo Usuario
+        
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+    @if(auth()->user()?->email === 'sgarcia240@gmail.com')
+        <button wire:click="openModal({{ auth()->id() }})" class="w-full sm:w-auto px-4 py-2.5 bg-slate-700 hover:bg-slate-800 text-white font-medium text-sm rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+            Editar mi cuenta
         </button>
+    @endif
+
+    <button wire:click="openModal()" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nuevo Usuario
+    </button>
+</div>
+        
     </div>
 
     @if (session()->has('message'))
