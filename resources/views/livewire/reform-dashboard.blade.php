@@ -189,7 +189,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">1. Hacer Foto / Elegir</label>
-                                    <input type="file" accept="image/*" capture="environment" wire:model="quoteFile" class="w-full text-sm text-slate-600 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white" required>
+                                    <input type="file" accept="image/*" wire:model="otPhoto" class="w-full text-sm text-slate-600 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white" required>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">2. ¿Qué elemento es?</label>
@@ -244,7 +244,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 mb-1">Adjuntar PDF o foto del presupuesto (Opcional)</label>
-                                <input type="file" wire:model="quoteFile" class="w-full text-xs text-slate-600">
+                                <input type="file" wire:model="quoteFile" class="w-full text-sm text-slate-600 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white" required>
                             </div>
                             <button type="submit" class="w-full py-3 bg-indigo-600 active:bg-indigo-800 text-white text-sm font-bold rounded-xl">
                                 + Guardar Oferta
