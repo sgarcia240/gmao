@@ -7,6 +7,9 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     
     <title>{{ config('app.name', 'GMAO Reformas') }}</title>
+    <!-- Favicon de la pestaña del navegador -->
+        <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}?v=1">
+        <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}?v=1">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -38,12 +41,14 @@
             <div>
                 <!-- Brand / Logo -->
                 <div class="h-16 flex items-center px-6 bg-slate-950 border-b border-slate-800/60 justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-blue-600 rounded-lg text-white font-black text-xl leading-none">
-                            E
-                        </div>
-                        <span class="font-bold text-white tracking-wide text-lg">GMAO Reformas</span>
-                    </div>
+                    <a href="{{ url('/') }}" class="flex items-center gap-3 min-w-0">
+                        <img src="{{ asset('images/logo.png') }}"
+                            alt="{{ config('app.name') }}"
+                            class="h-9 w-auto max-w-[140px] object-contain rounded-lg shrink-0">
+                        <span class="font-bold text-white tracking-wide text-lg truncate">
+                            {{ config('app.name', 'Tu Nombre de App') }}
+                        </span>
+                    </a>
                     <!-- Botón para cerrar en móvil -->
                     <button @click="sidebarOpen = false" class="md:hidden text-slate-400 hover:text-white p-1 rounded-lg focus:outline-none">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

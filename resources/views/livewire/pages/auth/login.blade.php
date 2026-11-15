@@ -22,13 +22,13 @@ $login = function () {
     <!-- Tarjeta ampliada: sm:max-w-xl y padding p-10 -->
     <div class="w-full sm:max-w-2xl bg-white shadow-2xl rounded-2xl p-10 border border-gray-100 mx-auto">
         
-        <!-- Logo 'E' corporativo -->
-        <div class="flex justify-center mb-8">
-            <a href="/" wire:navigate>
-                <svg class="w-20 h-20 shadow-md rounded-2xl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100" height="100" rx="22" fill="#2563EB"/>
-                    <path d="M 28 22 L 72 22 L 72 34 L 42 34 L 42 44 L 68 44 L 68 56 L 42 56 L 42 66 L 72 66 L 72 78 L 28 78 Z" fill="#FFFFFF"/>
-                </svg>
+        <!-- Logo corporativo -->
+        <div class="flex flex-col items-center justify-center mb-8">
+            <a href="/" wire:navigate class="flex flex-col items-center gap-3">
+                <img src="{{ asset('images/logo.png') }}"
+                     alt="{{ config('app.name') }}"
+                     class="h-20 w-auto max-w-[220px] object-contain rounded-2xl">
+                
             </a>
         </div>
 
@@ -74,7 +74,7 @@ $login = function () {
             </div>
 
             <!-- Recordarme y Olvidé contraseña -->
-            <div class="flex items-center justify-between text-sm pt-1">
+            <div class="flex flex-col gap-3 text-sm pt-1">
                 <label for="remember" class="inline-flex items-center cursor-pointer">
                     <input wire:model="form.remember" id="remember" type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 w-4 h-4">
                     <span class="ms-2 text-gray-600">Recordarme</span>
