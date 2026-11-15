@@ -3,7 +3,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">Gestión de Usuarios y Técnicos</h1>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Administra el personal técnico, supervisores y administradores del GMAO.</p>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Administra el personal técnico, supervisores y administradores.</p>
         </div>
         
         <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
