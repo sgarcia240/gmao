@@ -1,6 +1,6 @@
 FROM php:8.3-apache
 
-# 1. Instalar dependencias del sistema, Node.js 20, extensiones PHP para PostgreSQL y GD
+# 1. Instalar dependencias del sistema, Node.js 20, extensiones PHP para PostgreSQL, GD y BCMath
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -12,9 +12,6 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) pdo pdo_pgsql pgsql zip gd \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) pdo pdo_pgsql pgsql zip gd bcmath \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -37,7 +34,7 @@ COPY . .
 
 # 6. Instalar dependencias de PHP (Composer) y compilar frontend (Vite)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
-    && npm ci || npm install \
+    && (npm ci || npm install) \
     && npm run build
 
 # 7. Asignar permisos correctos a las carpetas de almacenamiento de Laravel
