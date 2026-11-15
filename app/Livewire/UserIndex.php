@@ -30,6 +30,7 @@ class UserIndex extends Component
     public string $userToDeleteName = '';
     public string $userToDeleteEmail = '';
     public int $assignedOrdersCount = 0;
+  
 
     public function mount()
     {
@@ -41,9 +42,13 @@ class UserIndex extends Component
     {
         return [
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users,email,' . $this->userId,
+            'email'     => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($this->userId ?: null),
+            ],
             'password'  => $this->userId ? 'nullable|min:8' : 'required|min:8',
-            'role' => ['required', Rule::in(array_keys(User::roles()))],
+            'role'      => ['required', Rule::in(array_keys(User::roles()))],
             'phone'     => 'nullable|string|max:20',
             'specialty' => 'nullable|string|max:100',
             'is_active' => 'boolean',
