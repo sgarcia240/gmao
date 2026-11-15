@@ -1,5 +1,9 @@
 #!/bin/sh
 set -e
+# Si vendor no existe por cualquier motivo, instalarlo antes de ejecutar artisan
+if [ ! -f /var/www/html/vendor/autoload.php ]; then
+    composer install --no-dev --optimize-autoloader --no-interaction
+fi
 
 # Limpiar cache de configuracion, rutas y vistas al arrancar el contenedor
 php artisan config:clear
