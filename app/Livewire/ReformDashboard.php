@@ -47,6 +47,11 @@ class ReformDashboard extends Component
     public $showNewModal = false;
     public $newAddress = '';
     public $newRae = '';
+    // Modal personalizado de borrado de Oferta / Documento Anexo
+    public bool $showDeleteQuoteModal = false;
+    public ?int $quoteToDeleteId = null;
+    public string $quoteDeleteMode = 'quote'; // 'quote' (oferta completa) | 'file' (solo documento anexo)
+    public string $quoteToDeleteLabel = '';
 
     public array $defaultComponents = [
         'Máquina',
@@ -291,5 +296,96 @@ class ReformDashboard extends Component
             'activeOts' => $activeOts,
             'currentOt' => $currentOt,
         ]);
+    }
+    public function deleteQuote($quoteId)
+    {
+        $quote = WorkOrderQuote::findOrFail($quoteId);
+
+        if ($quote->file_path) {
+            Storage::disk('public')->delete($quote->file_path);
+        }
+
+        // Si la oferta borrada era la ganadora seleccionada, limpiar el presupuesto aceptado en la OT
+        if ($quote->is_selected) {
+            WorkOrder::where('id', $this->selectedOtId)->update([
+                'budget_provider' => null,
+                'accepted_budget_amount' => null,
+            ]);
+        }
+
+        $quote->delete();
+        session()->flash('message', 'Oferta eliminada correctamente.');
+    }
+
+    public function deleteQuoteFile($quoteId)
+    {
+        $quote = WorkOrderQuote::findOrFail($quoteId);
+
+        if ($quote->file_path) {
+            Storage::disk('public')->delete($quote->file_path);
+            $quote->update(['file_path' => null]);
+            session()->flash('message', 'Documento adjunto eliminado.');
+        }
+    }
+    public function confirmDeleteQuote($quoteId)
+    {
+        $quote = WorkOrderQuote::findOrFail($quoteId);
+
+        $this->quoteToDeleteId = $quote->id;
+        $this->quoteDeleteMode = 'quote';
+        $this->quoteToDeleteLabel = $quote->provider_name . ' (' . number_format((float) $quote->amount, 2, ',', '.') . ' €)';
+        $this->showDeleteQuoteModal = true;
+    }
+
+    public function confirmDeleteQuoteFile($quoteId)
+    {
+        $quote = WorkOrderQuote::findOrFail($quoteId);
+
+        $this->quoteToDeleteId = $quote->id;
+        $this->quoteDeleteMode = 'file';
+        $this->quoteToDeleteLabel = $quote->provider_name;
+        $this->showDeleteQuoteModal = true;
+    }
+
+    public function cancelDeleteQuoteModal()
+    {
+        $this->reset(['showDeleteQuoteModal', 'quoteToDeleteId', 'quoteDeleteMode', 'quoteToDeleteLabel']);
+    }
+
+    public function executeQuoteDeletion()
+    {
+        if (!$this->quoteToDeleteId) {
+            $this->cancelDeleteQuoteModal();
+            return;
+        }
+
+        $quote = WorkOrderQuote::findOrFail($this->quoteToDeleteId);
+
+        if ($this->quoteDeleteMode === 'file') {
+            if ($quote->file_path) {
+                Storage::disk('public')->delete($quote->file_path);
+                $quote->update(['file_path' => null]);
+            }
+            $this->cancelDeleteQuoteModal();
+            session()->flash('message', 'Documento adjunto eliminado correctamente.');
+            return;
+        }
+
+        // Modo 'quote': eliminar archivo físico, limpiar OT si era la oferta ganadora y borrar el registro
+        if ($quote->file_path) {
+            Storage::disk('public')->delete($quote->file_path);
+        }
+
+        if ($quote->is_selected) {
+            WorkOrder::where('id', $this->selectedOtId)->update([
+                'budget_provider' => null,
+                'accepted_budget_amount' => null,
+            ]);
+        }
+
+        $quote->delete();
+
+        $this->cancelDeleteQuoteModal();
+        session()->flash('message', 'Oferta eliminada correctamente.');
     }
 }

@@ -45,3 +45,4 @@ RUN sed -i -e 's/\r$//' /usr/local/bin/entrypoint.sh \
 
 # 8. Punto de entrada único
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+RUN echo "upload_max_filesize=20M\npost_max_size=25M" > /usr/local/etc/php/conf.d/uploads.ini
