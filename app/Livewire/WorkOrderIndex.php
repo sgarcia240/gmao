@@ -7,13 +7,20 @@ use Livewire\WithPagination;
 use App\Models\WorkOrder;
 use App\Models\Elevator;
 use App\Models\User;
+use Illuminate\Support\Facades\Schema;
 
 class WorkOrderIndex extends Component
 {
     use WithPagination;
 
-    // Control del Modal de Creación
+    // Control del Modal de Edición
     public bool $showModal = false;
+    public ?int $editingOrderId = null;
+
+    // Control del Modal de Confirmación de Borrado
+    public bool $showDeleteModal = false;
+    public ?int $orderToDeleteId = null;
+    public string $orderToDeleteElevator = '';
 
     // Campos del Formulario
     public $elevator_id = '';
@@ -40,8 +47,6 @@ class WorkOrderIndex extends Component
             'failure_category'  => 'nullable|string|max:100',
         ];
     }
-
-    public ?int $editingOrderId = null; // Añade esta propiedad arriba junto a tus otras propiedades públicas
 
     public function openCreateModal()
     {
@@ -76,7 +81,6 @@ class WorkOrderIndex extends Component
             abort(403, 'Las órdenes nuevas deben crearse desde la Toma de Datos.');
         }
 
-        // Si technician_id viene vacío '', lo convertimos a null para que pase 'nullable|exists:users,id'
         if ($this->technician_id === '') {
             $this->technician_id = null;
         }
@@ -90,24 +94,60 @@ class WorkOrderIndex extends Component
         $this->showModal = false;
         session()->flash('message', '¡Orden de trabajo #' . $order->id . ' actualizada correctamente!');
     }
-    public function deleteOrder(int $id)
+
+    public function confirmDelete(int $id)
     {
+        $user = auth()->user();
+
+        if (!$user->hasRole(User::ROLE_ADMIN) && !$user->hasRole(User::ROLE_SUPERVISOR)) {
+            abort(403, 'No tienes permiso para eliminar órdenes de trabajo.');
+        }
+
+        $order = WorkOrder::with('elevator')->findOrFail($id);
+
+        $this->orderToDeleteId = $order->id;
+        $this->orderToDeleteElevator = $order->elevator?->rae ?? 'Sin RAE asignado';
+        $this->showDeleteModal = true;
+    }
+
+    public function cancelDelete()
+    {
+        $this->reset(['showDeleteModal', 'orderToDeleteId', 'orderToDeleteElevator']);
+    }
+
+    public function deleteOrder()
+    {
+        $user = auth()->user();
+
+        if (!$user->hasRole(User::ROLE_ADMIN) && !$user->hasRole(User::ROLE_SUPERVISOR)) {
+            abort(403, 'No tienes permiso para eliminar órdenes de trabajo.');
+        }
+
+        if (!$this->orderToDeleteId) {
+            $this->cancelDelete();
+            return;
+        }
+
+        $id = $this->orderToDeleteId;
         $order = WorkOrder::findOrFail($id);
 
-        // Si en el futuro las relaciones no tienen onDelete('cascade') en MySQL,
-        // limpiamos antes los registros hijos para evitar errores de clave foránea:
-        if (method_exists($order, 'reformItems')) {
+        // Limpiar registros hijos comprobando antes que la tabla exista (evita SQLSTATE 25P02 en PostgreSQL)
+        if (Schema::hasTable('reform_items') && method_exists($order, 'reformItems')) {
             $order->reformItems()->delete();
         }
-        if (method_exists($order, 'photos')) {
+        if (Schema::hasTable('work_order_photos') && method_exists($order, 'photos')) {
             $order->photos()->delete();
         }
-        if (method_exists($order, 'quotes')) {
+        if (Schema::hasTable('quotes') && method_exists($order, 'quotes')) {
             $order->quotes()->delete();
+        }
+        if (Schema::hasTable('invoices') && method_exists($order, 'invoices')) {
+            $order->invoices()->delete();
         }
 
         $order->delete();
 
+        $this->cancelDelete();
         session()->flash('message', 'Orden de trabajo #' . $id . ' eliminada correctamente.');
     }
 
@@ -117,7 +157,6 @@ class WorkOrderIndex extends Component
         $user = auth()->user();
         $order = WorkOrder::findOrFail($orderId);
 
-        // Verificación de seguridad extra: si es técnico, solo puede actualizar sus propias órdenes
         if ($user->hasRole(User::ROLE_TECHNICIAN) && $order->technician_id !== $user->id) {
             abort(403, 'No tienes permiso para modificar esta orden de trabajo.');
         }
@@ -133,7 +172,6 @@ class WorkOrderIndex extends Component
 
         $query = WorkOrder::with(['elevator.location', 'technician']);
 
-        // Data Scoping: Si es técnico, filtrar solo sus órdenes
         if ($user?->hasRole(User::ROLE_TECHNICIAN)) {
             $query->where('technician_id', $user->id);
         }
@@ -149,10 +187,7 @@ class WorkOrderIndex extends Component
         return view('livewire.work-order-index', [
             'workOrders'  => $query->latest()->paginate(10),
             'elevators'   => Elevator::with('location')->get(),
-            // Filtrar selector de técnicos solo a técnicos activos
             'technicians' => User::where('role', User::ROLE_TECHNICIAN)->where('is_active', true)->get(),
         ])->layout('layouts.app');
     }
-
-
 }
